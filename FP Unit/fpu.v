@@ -17,10 +17,15 @@ module fpu(
     reg [31:0] mantA;
     reg [31:0] mantB;
     
-    reg signR = 1'b0;
+    reg sumaResta;
+    reg signR;
     reg [31:0] expoR;
     reg [31:0] mantR;
-
+    reg [31:0] mantAshift;
+    reg [31:0] mantBshift;
+    reg [47:0] productoPosible;
+    reg [31:0] aux;
+    reg [47:0] aux2;
     reg [1:0] control;
 
     always @(*) begin
@@ -37,27 +42,134 @@ module fpu(
         mantA = FPUControl[0] ? {9'b1, a[22:0]} : {22'b1, a[9:0]};
         mantB = FPUControl[0] ? {9'b1, b[22:0]} : {22'b1, b[9:0]};
         
-        if (FPUControl[1] == 1'b0) begin
-            if (expoA > expoB) begin
-                expoR = expoA;
-                mantB = mantB >> (expoA - expoB);
+        if (~FPUControl[1]) begin
+            //Suma
+            if ((a == 0 && b != 0) || a != 0 && b == 0) begin
+                signR = (a == 0) ? signB : signA;
+                expoR = (a == 0) ? expoB : expoA;
+                mantR = (a == 0) ? mantB : mantA;
+            end
+            else if ((a == 0 && b == 0) || (signA != signB && expoA == expoB && mantA == mantB)) begin
+                signR = 0;
+                expoR = 0;
+                mantR = 0;
             end
             else begin
-                expoR = expoB;
-                mantA = mantA >> (expoB - expoA);
-            end
-            mantR = mantA + mantB;
+                if (expoA > expoB) begin
+                    expoR = expoA;
+                    mantB = mantB >> (expoA - expoB);
+                end
+                else begin
+                    expoR = expoB;
+                    mantA = mantA >> (expoB - expoA);
+                end
 
-            if (control[0] ? (mantR[24] == 1'b1) : (mantR[11] == 1'b1)) begin
-                //Overflow
-                mantR = mantR >> 1'b1;
-                expoR = expoR + 1'b1;
-            end
+                //sumaResta, //0 sumar, 1 restar
+                sumaResta = ~(signA == signB);
 
-            //Quitar el 1 delante de la mantisa
-            mantR = FPUControl[0] ? mantR[22:0] : mantR[9:0];
+                if (sumaResta) begin
+                    if (mantA > mantB) begin
+                        mantR = mantA - mantB;
+                        signR = signA;
+                    end
+                    else begin
+                        mantR = mantB - mantA;
+                        signR = signB;
+                    end
+                end
+                else begin
+                    mantR = mantA + mantB;
+                    signR = signA;
+                end
+                    
+                if (sumaResta) begin
+                    //RESTA: Busco el primer 1
+                    //mantR != 0, porque valido al inicio
+                    aux = 0;
+                    //En aux guardo en qué bit está el primer 1 a la izquierda
+                    //naturalmente es menor a 23 o 10, ya que restamos el mayor - menor
+                    aux2 = mantR;
+                    while(~aux2[31]) begin
+                        aux2 = aux2 << 1;
+                        aux = aux + 1;
+                    end
+                    aux = 31 - aux;
+                    //Este bit debe regresar a la posicion 23 o 10 para normalizar la mantisa
+                    //Cada desplazamiento debe restar 1 al exponente
+                    mantR = mantR << ((FPUControl[0] ? 23 : 10) - aux);
+                    expoR = expoR - ((FPUControl[0] ? 23 : 10) - aux);
+                end
+                else begin
+                    //SUMA:
+                    if ((control[0] && mantR[24] == 1'b1) || (~control[0] && mantR[11] == 1'b1)) begin
+                        //Overflow
+                        mantR = mantR >> 1'b1;
+                        expoR = expoR + 1'b1;
+                    end
+                end
+                
+                //Quitar el 1 delante de la mantisa
+                mantR = FPUControl[0] ? mantR[22:0] : mantR[9:0];
+            end
         end
-        
+        else begin
+            if (a == 0 || b == 0) begin
+                signR = 0;
+                expoR = 0;
+                mantR = 0;
+            end
+            else begin
+                expoR = expoA + expoB - (FPUControl[0] ? 8'b01111111 : 5'b01111);
+                //Desplazo a la derecha las mantisas eliminando todos los ending zeros.
+                mantAshift = 0; //Guarda cuantos bits a la derecha se mueve.
+                mantBshift = 0;
+                while(~mantA[0]) begin
+                    mantA = mantA >> 1;
+                    mantAshift = mantAshift + 1;
+                end
+                while(~mantB[0]) begin
+                    mantB = mantB >> 1;
+                    mantBshift = mantBshift + 1;
+                end
+                
+                //Multiplico las mantisas, máximo número puede ser de 48 bits o 22 bits
+                if (FPUControl[0])
+                    productoPosible = {16'b0, mantA} * {16'b0, mantB};
+                else
+                    productoPosible = mantA * mantB;
+                
+                aux = 0;
+                //productoPosible tiene 1 o 2 bits de parte entera
+                //En aux guardo en qué bit está el primer 1 a la izquierda
+                aux2 = productoPosible;
+                while(~aux2[47]) begin
+                    aux2 = aux2 << 1;
+                    aux = aux + 1;
+                end
+                aux = 47 - aux;
+                //Si aux+1 - # bits decimales en ambas mantisas > 1 (=2), sumo uno al exponente
+                if ( ( (aux + 1) - ((FPUControl[0] ? 23 : 10) - mantAshift + (FPUControl[0] ? 23 : 10) - mantBshift) ) > 1) begin
+                    expoR = expoR + 1;
+                end
+
+                //Caso 1: aux = 23, entonces ya tiene forma de mantisa (leading 1 y 23 bits después, 0 a 22)
+                //Caso 1: aux = 10, entonces ya tiene forma de mantisa (leading 1 y 10 bits después, 0 a 9)
+                //Caso 2: aux > 23, shift right, se puede perder información en los bits menos significativos
+                //Caso 2: aux > 10, shift right, se puede perder información en los bits menos significativos
+                if (aux > (FPUControl[0] ? 23 : 10))
+                    productoPosible = productoPosible >> (aux - (FPUControl[0] ? 23 : 10));
+                //Caso 3: aux < 23, shift left para darle forma
+                //Caso 3: aux < 10, shift left para darle forma
+                if (aux < (FPUControl[0] ? 23 : 10))
+                    productoPosible = productoPosible << ((FPUControl[0] ? 23 : 10) - aux);
+
+                //Quitar el 1 delante de la mantisa
+                mantR = FPUControl[0] ? productoPosible[22:0] : productoPosible[9:0];
+
+                //Signo
+                signR = signA ^ signB;
+            end
+        end
         Result = FPUControl[0] ? {signR, expoR[7:0], mantR[22:0]} : {signR, expoR[4:0], mantR[9:0]};
     end
     
