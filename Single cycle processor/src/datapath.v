@@ -18,7 +18,8 @@ module datapath (
 	ALUFlags,
 	PC,
 	Instr,
-	ALUResult,
+	ALUResult1,
+	ALUResult2,
 	WriteData,
 	ReadData
 );
@@ -34,7 +35,8 @@ module datapath (
 	output wire [3:0] ALUFlags;
 	output wire [31:0] PC;
 	input wire [31:0] Instr;
-	output wire [31:0] ALUResult;
+	output wire [31:0] ALUResult1;
+	output wire [31:0] ALUResult2;
 	output wire [31:0] WriteData;
 	input wire [31:0] ReadData;
 	wire [31:0] PCNext;
@@ -92,7 +94,7 @@ module datapath (
 		.rd2(WriteData)
 	);
 	mux2 #(32) resmux(
-		.d0(ALUResult),
+		.d0(ALUResult1),
 		.d1(ReadData),
 		.s(MemtoReg),
 		.y(Result)
@@ -112,7 +114,8 @@ module datapath (
 		SrcA,
 		SrcB,
 		ALUControl,
-		ALUResult,
+		ALUResult1,
+		ALUResult2,
 		ALUFlags
 	);
 endmodule

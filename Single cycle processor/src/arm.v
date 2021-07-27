@@ -7,7 +7,8 @@ module arm (
 	PC,
 	Instr,
 	MemWrite,
-	ALUResult,
+	ALUResult1,
+	ALUResult2,
 	WriteData,
 	ReadData
 );
@@ -16,7 +17,8 @@ module arm (
 	output wire [31:0] PC;
 	input wire [31:0] Instr;
 	output wire MemWrite;
-	output wire [31:0] ALUResult;
+	output wire [31:0] ALUResult1;
+	output wire [31:0] ALUResult2;
 	output wire [31:0] WriteData;
 	input wire [31:0] ReadData;
 	wire [3:0] ALUFlags;
@@ -30,6 +32,7 @@ module arm (
 	controller c(
 		.clk(clk),
 		.reset(reset),
+		.MulOp(Instr[7:4]),
 		.Instr(Instr[31:12]),
 		.ALUFlags(ALUFlags),
 		.RegSrc(RegSrc),
@@ -54,7 +57,8 @@ module arm (
 		.ALUFlags(ALUFlags),
 		.PC(PC),
 		.Instr(Instr),
-		.ALUResult(ALUResult),
+		.ALUResult1(ALUResult1),
+		.ALUResult2(ALUResult2),
 		.WriteData(WriteData),
 		.ReadData(ReadData)
 	);
