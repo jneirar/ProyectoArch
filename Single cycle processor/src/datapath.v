@@ -21,8 +21,6 @@ module datapath (
 	FPUFlags,
 	PC,
 	Instr,
-	ALUResult1,
-	ALUResult2,
 	OPResult,
 	WriteData,
 	ReadData
@@ -42,8 +40,6 @@ module datapath (
 	output wire [3:0] FPUFlags;
 	output wire [31:0] PC;
 	input wire [31:0] Instr;
-	output wire [31:0] ALUResult1;
-	output wire [31:0] ALUResult2;
 	output wire [31:0] OPResult;
 	output wire [31:0] WriteData;
 	input wire [31:0] ReadData;
@@ -56,7 +52,8 @@ module datapath (
 	wire [31:0] Result;
 	wire [3:0] RA1;
 	wire [3:0] RA2;
-	wire [31:0] ALUResult;
+	wire [31:0] ALUResult1;
+	wire [31:0] ALUResult2;
 	wire [31:0] FPUResult;
 	mux2 #(32) pcmux(
 		.d0(PCPlus4),
@@ -98,13 +95,14 @@ module datapath (
 		.ra1(RA1),
 		.ra2(RA2),
 		.wa3(Instr[15:12]),
+		.wa4(Instr[15:12]), //cambiar
 		.wd3(Result),
+		.wd4(ALUResult2),
 		.r15(PCPlus8),
 		.rd1(SrcA),
 		.rd2(WriteData)
 	);
 	mux2 #(32) resmux(
-		.d0(ALUResult1),
 		.d0(OPResult),
 		.d1(ReadData),
 		.s(MemtoReg),
@@ -122,16 +120,11 @@ module datapath (
 		.y(SrcB)
 	);
 	alu alu(
-		SrcA,
-		SrcB,
-		ALUControl,
-		ALUResult1,
-		ALUResult2,
-		ALUFlags
 		.a(SrcA),
 		.b(SrcB),
 		.ALUControl(ALUControl),
-		.Result(ALUResult),
+		.Result1(ALUResult1),
+		.Result2(ALUResult2),
 		.ALUFlags(ALUFlags)
 	);
 	fpu fpu(
@@ -142,7 +135,7 @@ module datapath (
 		.FPUFlags(FPUFlags)
 	);
 	mux2 #(32) resSrcmux(
-		.d0(ALUResult),
+		.d0(ALUResult1),
 		.d1(FPUResult),
 		.s(ResSrc),
 		.y(OPResult)

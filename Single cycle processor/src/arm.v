@@ -8,8 +8,6 @@ module arm (
 	PC,
 	Instr,
 	MemWrite,
-	ALUResult1,
-	ALUResult2,
 	OPResult,
 	WriteData,
 	ReadData
@@ -19,8 +17,6 @@ module arm (
 	output wire [31:0] PC;
 	input wire [31:0] Instr;
 	output wire MemWrite;
-	output wire [31:0] ALUResult1;
-	output wire [31:0] ALUResult2;
 	output wire [31:0] OPResult;
 	output wire [31:0] WriteData;
 	input wire [31:0] ReadData;
@@ -69,8 +65,6 @@ module arm (
 		.FPUFlags(FPUFlags),
 		.PC(PC),
 		.Instr(Instr),
-		.ALUResult1(ALUResult1),
-		.ALUResult2(ALUResult2),
 		.OPResult(OPResult),
 		.WriteData(WriteData),
 		.ReadData(ReadData)
