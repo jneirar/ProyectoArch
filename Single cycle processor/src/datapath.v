@@ -10,6 +10,7 @@ module datapath (
 	reset,
 	RegSrc,
 	RegWrite,
+	MulWrite,
 	ImmSrc,
 	ALUSrc,
 	ALUControl,
@@ -29,9 +30,10 @@ module datapath (
 	input wire reset;
 	input wire [1:0] RegSrc;
 	input wire RegWrite;
+	input wire MulWrite;
 	input wire [1:0] ImmSrc;
 	input wire ALUSrc;
-	input wire [1:0] ALUControl;
+	input wire [2:0] ALUControl;
 	input wire [1:0] FPUControl;
 	input wire MemtoReg;
 	input wire PCSrc;
@@ -92,10 +94,11 @@ module datapath (
 	regfile rf(
 		.clk(clk),
 		.we3(RegWrite),
+		.we4(MulWrite),
 		.ra1(RA1),
 		.ra2(RA2),
 		.wa3(Instr[15:12]),
-		.wa4(Instr[15:12]), //cambiar
+		.wa4(Instr[19:16]),
 		.wd3(Result),
 		.wd4(ALUResult2),
 		.r15(PCPlus8),

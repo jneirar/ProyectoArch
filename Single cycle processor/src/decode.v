@@ -2,6 +2,7 @@ module decode (
 	Op,
 	Funct,
 	Rd,
+	MulOp,
 	FlagW,
 	PCS,
 	RegW,
@@ -13,11 +14,13 @@ module decode (
 	ALUControl,
 	FPUControl,
 	ResSrc,
-	FPUFlagW
+	FPUFlagW,
+	MulWrite
 );
 	input wire [1:0] Op;
 	input wire [5:0] Funct;
 	input wire [3:0] Rd;
+	input wire [3:0] MulOp;
 	output reg [1:0] FlagW;
 	output wire PCS;
 	output wire RegW;
@@ -26,10 +29,11 @@ module decode (
 	output wire ALUSrc;
 	output wire [1:0] ImmSrc;
 	output wire [1:0] RegSrc;
-	output reg [1:0] ALUControl;
+	output reg [2:0] ALUControl;
 	output reg [1:0] FPUControl;
 	output wire ResSrc;
 	output reg [1:0] FPUFlagW;
+	output reg MulWrite;
 	reg [10:0] controls;
 	wire Branch;
 	wire ALUOp;
@@ -52,19 +56,32 @@ module decode (
 	assign {RegSrc, ImmSrc, ALUSrc, MemtoReg, RegW, MemW, Branch, ALUOp, ResSrc} = controls;
 	always @(*)
 		if (ALUOp) begin
-			case (Funct[4:1])
-				4'b0100: ALUControl = 2'b00;
-				4'b0010: ALUControl = 2'b01;
-				4'b0000: ALUControl = 2'b10;
-				4'b1100: ALUControl = 2'b11;
-				default: ALUControl = 2'bxx;
-			endcase
+			if (MulOp == 4'b1001) begin
+				case (Funct[3:1])
+					3'b000: ALUControl = 3'b100;
+					3'b100: ALUControl = 3'b101;
+					3'b110: ALUControl = 3'b110;
+					default: ALUControl = 3'bxxx;
+				endcase
+				MulWrite = 1'b1;
+			end
+			else begin
+				case (Funct[4:1])
+					4'b0100: ALUControl = 3'b000;
+					4'b0010: ALUControl = 3'b001;
+					4'b0000: ALUControl = 3'b010;
+					4'b1100: ALUControl = 3'b011;
+					default: ALUControl = 3'bxxx;
+				endcase
+				MulWrite = 1'b0;
+			end
 			FlagW[1] = Funct[0];
-			FlagW[0] = Funct[0] & ((ALUControl == 2'b00) | (ALUControl == 2'b01));
+			FlagW[0] = Funct[0] & ((ALUControl == 3'b000) | (ALUControl == 3'b001));
 		end
 		else begin
-			ALUControl = 2'b00;
+			ALUControl = 3'b000;
 			FlagW = 2'b00;
+			MulWrite = 1'b0;
 		end
 	assign PCS = ((Rd == 4'b1111) & RegW) | Branch;
 	

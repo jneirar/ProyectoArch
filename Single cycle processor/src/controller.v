@@ -6,11 +6,11 @@ module controller (
 	reset,
 	MulOp,
 	Instr,
-	MulOp,
 	ALUFlags,
 	FPUFlags,
 	RegSrc,
 	RegWrite,
+	MulWrite,
 	ImmSrc,
 	ALUSrc,
 	ALUControl,
@@ -22,15 +22,16 @@ module controller (
 );
 	input wire clk;
 	input wire reset;
-	input wire [7:4] MulOp;
+	input wire [3:0] MulOp;
 	input wire [31:12] Instr;
 	input wire [3:0] ALUFlags;
 	input wire [3:0] FPUFlags;
 	output wire [1:0] RegSrc;
 	output wire RegWrite;
+	output wire MulWrite;
 	output wire [1:0] ImmSrc;
 	output wire ALUSrc;
-	output wire [1:0] ALUControl;
+	output wire [2:0] ALUControl;
 	output wire MemWrite;
 	output wire MemtoReg;
 	output wire PCSrc;
@@ -57,7 +58,8 @@ module controller (
 		.ALUControl(ALUControl),
 		.FPUControl(FPUControl),
 		.ResSrc(ResSrc),
-		.FPUFlagW(FPUFlagW)
+		.FPUFlagW(FPUFlagW),
+		.MulWrite(MulWrite)
 	);
 	condlogic cl(
 		.clk(clk),

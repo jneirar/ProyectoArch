@@ -23,12 +23,13 @@ module arm (
 	wire [3:0] ALUFlags;
 	wire [3:0] FPUFlags;
 	wire RegWrite;
+	wire MulWrite;
 	wire ALUSrc;
 	wire MemtoReg;
 	wire PCSrc;
 	wire [1:0] RegSrc;
 	wire [1:0] ImmSrc;
-	wire [1:0] ALUControl;
+	wire [2:0] ALUControl;
 	wire ResSrc;
 	wire [1:0] FPUControl;
 	controller c(
@@ -40,6 +41,7 @@ module arm (
 		.FPUFlags(FPUFlags),
 		.RegSrc(RegSrc),
 		.RegWrite(RegWrite),
+		.MulWrite(MulWrite),
 		.ImmSrc(ImmSrc),
 		.ALUSrc(ALUSrc),
 		.ALUControl(ALUControl),
@@ -54,6 +56,7 @@ module arm (
 		.reset(reset),
 		.RegSrc(RegSrc),
 		.RegWrite(RegWrite),
+		.MulWrite(MulWrite),
 		.ImmSrc(ImmSrc),
 		.ALUSrc(ALUSrc),
 		.ALUControl(ALUControl),
