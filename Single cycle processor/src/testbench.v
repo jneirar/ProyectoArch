@@ -12,10 +12,13 @@ module testbench;
 		.MemWrite(MemWrite)
 	);
 	initial begin
+
 		reset <= 1;
 		#(22)
 			;
 		reset <= 0;
+		#300;
+		$finish;
 	end
 	always begin
 		clk <= 1;
@@ -25,8 +28,11 @@ module testbench;
 		#(5)
 			;
 	end
+	/*
 	always @(negedge clk)
 		if (MemWrite)
+			#20;
+			$finish;
 			if ((DataAdr === 100) & (WriteData === 7)) begin
 				$display("Simulation succeeded");
 				#20;
@@ -36,7 +42,7 @@ module testbench;
 				$display("Simulation failed");
 				#20;
 				$finish;
-			end
+			end*/
 	initial begin
 		$dumpfile("top.vcd");
 		$dumpvars;

@@ -6,6 +6,7 @@ module controller (
 	reset,
 	Instr,
 	ALUFlags,
+	FPUFlags,
 	RegSrc,
 	RegWrite,
 	ImmSrc,
@@ -13,12 +14,15 @@ module controller (
 	ALUControl,
 	MemWrite,
 	MemtoReg,
-	PCSrc
+	PCSrc,
+	ResSrc,
+	FPUControl
 );
 	input wire clk;
 	input wire reset;
 	input wire [31:12] Instr;
 	input wire [3:0] ALUFlags;
+	input wire [3:0] FPUFlags;
 	output wire [1:0] RegSrc;
 	output wire RegWrite;
 	output wire [1:0] ImmSrc;
@@ -27,10 +31,14 @@ module controller (
 	output wire MemWrite;
 	output wire MemtoReg;
 	output wire PCSrc;
+	output wire ResSrc;
+	output wire [1:0] FPUControl;
 	wire [1:0] FlagW;
 	wire PCS;
 	wire RegW;
 	wire MemW;
+	wire FlagSrc;
+	wire [1:0] FPUFlagW;
 	decode dec(
 		.Op(Instr[27:26]),
 		.Funct(Instr[25:20]),
@@ -43,17 +51,24 @@ module controller (
 		.ALUSrc(ALUSrc),
 		.ImmSrc(ImmSrc),
 		.RegSrc(RegSrc),
-		.ALUControl(ALUControl)
+		.ALUControl(ALUControl),
+		.FPUControl(FPUControl),
+		.ResSrc(ResSrc),
+		.FPUFlagW(FPUFlagW),
+		.FlagSrc(FlagSrc)
 	);
 	condlogic cl(
 		.clk(clk),
 		.reset(reset),
 		.Cond(Instr[31:28]),
 		.ALUFlags(ALUFlags),
+		.FPUFlags(FPUFlags),
 		.FlagW(FlagW),
 		.PCS(PCS),
 		.RegW(RegW),
 		.MemW(MemW),
+		.FlagSrc(FlagSrc),
+		.FPUFlagW(FPUFlagW),
 		.PCSrc(PCSrc),
 		.RegWrite(RegWrite),
 		.MemWrite(MemWrite)

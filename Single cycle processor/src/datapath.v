@@ -1,9 +1,9 @@
 `include "adder.v"
 `include "flopr.v"
-`include "mux2.v"
 `include "regfile.v"
 `include "extend.v"
 `include "alu.v"
+`include "fpu.v"
 
 module datapath (
 	clk,
@@ -13,12 +13,15 @@ module datapath (
 	ImmSrc,
 	ALUSrc,
 	ALUControl,
+	FPUControl,
 	MemtoReg,
 	PCSrc,
+	ResSrc,
 	ALUFlags,
+	FPUFlags,
 	PC,
 	Instr,
-	ALUResult,
+	OPResult,
 	WriteData,
 	ReadData
 );
@@ -29,12 +32,15 @@ module datapath (
 	input wire [1:0] ImmSrc;
 	input wire ALUSrc;
 	input wire [1:0] ALUControl;
+	input wire [1:0] FPUControl;
 	input wire MemtoReg;
 	input wire PCSrc;
+	input wire ResSrc;
 	output wire [3:0] ALUFlags;
+	output wire [3:0] FPUFlags;
 	output wire [31:0] PC;
 	input wire [31:0] Instr;
-	output wire [31:0] ALUResult;
+	output wire [31:0] OPResult;
 	output wire [31:0] WriteData;
 	input wire [31:0] ReadData;
 	wire [31:0] PCNext;
@@ -46,6 +52,8 @@ module datapath (
 	wire [31:0] Result;
 	wire [3:0] RA1;
 	wire [3:0] RA2;
+	wire [31:0] ALUResult;
+	wire [31:0] FPUResult;
 	mux2 #(32) pcmux(
 		.d0(PCPlus4),
 		.d1(Result),
@@ -92,7 +100,7 @@ module datapath (
 		.rd2(WriteData)
 	);
 	mux2 #(32) resmux(
-		.d0(ALUResult),
+		.d0(OPResult),
 		.d1(ReadData),
 		.s(MemtoReg),
 		.y(Result)
@@ -109,10 +117,23 @@ module datapath (
 		.y(SrcB)
 	);
 	alu alu(
-		SrcA,
-		SrcB,
-		ALUControl,
-		ALUResult,
-		ALUFlags
+		.a(SrcA),
+		.b(SrcB),
+		.ALUControl(ALUControl),
+		.Result(ALUResult),
+		.ALUFlags(ALUFlags)
+	);
+	fpu fpu(
+		.a(SrcA),
+		.b(SrcB),
+		.FPUControl(FPUControl),
+		.Result(FPUResult),
+		.FPUFlags(FPUFlags)
+	);
+	mux2 #(32) resSrcmux(
+		.d0(FPUResult),
+		.d1(ALUResult),
+		.s(ResSrc),
+		.y(OPResult)
 	);
 endmodule
