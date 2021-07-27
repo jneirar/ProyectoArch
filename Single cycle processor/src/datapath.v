@@ -131,8 +131,8 @@ module datapath (
 		.FPUFlags(FPUFlags)
 	);
 	mux2 #(32) resSrcmux(
-		.d0(FPUResult),
-		.d1(ALUResult),
+		.d0(ALUResult),
+		.d1(FPUResult),
 		.s(ResSrc),
 		.y(OPResult)
 	);

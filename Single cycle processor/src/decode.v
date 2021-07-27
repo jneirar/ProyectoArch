@@ -13,8 +13,7 @@ module decode (
 	ALUControl,
 	FPUControl,
 	ResSrc,
-	FPUFlagW,
-	FlagSrc
+	FPUFlagW
 );
 	input wire [1:0] Op;
 	input wire [5:0] Funct;
@@ -31,28 +30,26 @@ module decode (
 	output reg [1:0] FPUControl;
 	output wire ResSrc;
 	output reg [1:0] FPUFlagW;
-	output wire FlagSrc;
-	reg [12:0] controls;
+	reg [10:0] controls;
 	wire Branch;
 	wire ALUOp;
-	wire FPUOp;
 	always @(*)
 		casex (Op)
 			2'b00:
 				if (Funct[5])
-					controls = 13'b0000101001010;
+					controls = 11'b00001010010;
 				else
-					controls = 13'b0000001001010;
+					controls = 11'b00000010010;
 			2'b01:
 				if (Funct[0])
-					controls = 13'b0001111000010;
+					controls = 11'b00011110000;
 				else
-					controls = 13'b1001110100010;
-			2'b10: controls = 13'b0110100010010;
-			2'b11: controls = 13'b0000001000101;
-			default: controls = 13'bxxxxxxxxxxxxx;
+					controls = 11'b10011101000;
+			2'b10: controls = 11'b01101000100;
+			2'b11: controls = 11'b00000010001;
+			default: controls = 11'bxxxxxxxxxxx;
 		endcase
-	assign {RegSrc, ImmSrc, ALUSrc, MemtoReg, RegW, MemW, Branch, ALUOp, FPUOp, ResSrc, FlagSrc} = controls;
+	assign {RegSrc, ImmSrc, ALUSrc, MemtoReg, RegW, MemW, Branch, ALUOp, ResSrc} = controls;
 	always @(*)
 		if (ALUOp) begin
 			case (Funct[4:1])
@@ -70,8 +67,9 @@ module decode (
 			FlagW = 2'b00;
 		end
 	assign PCS = ((Rd == 4'b1111) & RegW) | Branch;
+	
 	always @(*)
-		if (FPUOp) begin
+		if (ResSrc) begin
 			case (Funct[4:1])
 				4'b0000: FPUControl = 2'b00;
 				4'b0001: FPUControl = 2'b01;

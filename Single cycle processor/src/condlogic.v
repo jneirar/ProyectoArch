@@ -11,7 +11,7 @@ module condlogic (
 	PCS,
 	RegW,
 	MemW,
-	FlagSrc,
+	ResSrc,
 	FPUFlagW,
 	PCSrc,
 	RegWrite,
@@ -26,7 +26,7 @@ module condlogic (
 	input wire PCS;
 	input wire RegW;
 	input wire MemW;
-	input wire FlagSrc;
+	input wire ResSrc;
 	input wire [1:0] FPUFlagW;
 	output wire PCSrc;
 	output wire RegWrite;
@@ -40,13 +40,13 @@ module condlogic (
 	mux2 #(2) muxFlagW(
 		.d0(FlagW),
 		.d1(FPUFlagW),
-		.s(FlagSrc),
+		.s(ResSrc),
 		.y(FlagWmux)
 	);
 	mux2 #(4) muxFlags(
 		.d0(ALUFlags),
 		.d1(FPUFlags),
-		.s(FlagSrc),
+		.s(ResSrc),
 		.y(Flagsmux)
 	);
 	flopenr #(2) flagreg1(

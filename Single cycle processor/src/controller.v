@@ -37,7 +37,6 @@ module controller (
 	wire PCS;
 	wire RegW;
 	wire MemW;
-	wire FlagSrc;
 	wire [1:0] FPUFlagW;
 	decode dec(
 		.Op(Instr[27:26]),
@@ -54,8 +53,7 @@ module controller (
 		.ALUControl(ALUControl),
 		.FPUControl(FPUControl),
 		.ResSrc(ResSrc),
-		.FPUFlagW(FPUFlagW),
-		.FlagSrc(FlagSrc)
+		.FPUFlagW(FPUFlagW)
 	);
 	condlogic cl(
 		.clk(clk),
@@ -67,7 +65,7 @@ module controller (
 		.PCS(PCS),
 		.RegW(RegW),
 		.MemW(MemW),
-		.FlagSrc(FlagSrc),
+		.ResSrc(ResSrc),
 		.FPUFlagW(FPUFlagW),
 		.PCSrc(PCSrc),
 		.RegWrite(RegWrite),
