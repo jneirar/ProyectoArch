@@ -1,5 +1,6 @@
 `include "controller.v"
 `include "datapath.v"
+`include "mux2.v"
 
 module arm (
 	clk,
@@ -9,6 +10,7 @@ module arm (
 	MemWrite,
 	ALUResult1,
 	ALUResult2,
+	OPResult,
 	WriteData,
 	ReadData
 );
@@ -19,9 +21,11 @@ module arm (
 	output wire MemWrite;
 	output wire [31:0] ALUResult1;
 	output wire [31:0] ALUResult2;
+	output wire [31:0] OPResult;
 	output wire [31:0] WriteData;
 	input wire [31:0] ReadData;
 	wire [3:0] ALUFlags;
+	wire [3:0] FPUFlags;
 	wire RegWrite;
 	wire ALUSrc;
 	wire MemtoReg;
@@ -29,12 +33,15 @@ module arm (
 	wire [1:0] RegSrc;
 	wire [1:0] ImmSrc;
 	wire [1:0] ALUControl;
+	wire ResSrc;
+	wire [1:0] FPUControl;
 	controller c(
 		.clk(clk),
 		.reset(reset),
 		.MulOp(Instr[7:4]),
 		.Instr(Instr[31:12]),
 		.ALUFlags(ALUFlags),
+		.FPUFlags(FPUFlags),
 		.RegSrc(RegSrc),
 		.RegWrite(RegWrite),
 		.ImmSrc(ImmSrc),
@@ -42,7 +49,9 @@ module arm (
 		.ALUControl(ALUControl),
 		.MemWrite(MemWrite),
 		.MemtoReg(MemtoReg),
-		.PCSrc(PCSrc)
+		.PCSrc(PCSrc),
+		.ResSrc(ResSrc),
+		.FPUControl(FPUControl)
 	);
 	datapath dp(
 		.clk(clk),
@@ -52,13 +61,20 @@ module arm (
 		.ImmSrc(ImmSrc),
 		.ALUSrc(ALUSrc),
 		.ALUControl(ALUControl),
+		.FPUControl(FPUControl),
 		.MemtoReg(MemtoReg),
 		.PCSrc(PCSrc),
+		.ResSrc(ResSrc),
 		.ALUFlags(ALUFlags),
+		.FPUFlags(FPUFlags),
 		.PC(PC),
 		.Instr(Instr),
+<<<<<<< HEAD
 		.ALUResult1(ALUResult1),
 		.ALUResult2(ALUResult2),
+=======
+		.OPResult(OPResult),
+>>>>>>> 92fdea725afd55d394f43f0698b57fc4dbb46b38
 		.WriteData(WriteData),
 		.ReadData(ReadData)
 	);

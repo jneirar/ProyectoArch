@@ -23,7 +23,7 @@ module top (
 		.PC(PC),
 		.Instr(Instr),
 		.MemWrite(MemWrite),
-		.ALUResult1(DataAdr),
+		.OPResult(DataAdr),
 		.WriteData(WriteData),
 		.ReadData(ReadData)
 	);
