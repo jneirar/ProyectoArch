@@ -2,13 +2,17 @@ module fpu(
     a,
     b,
     FPUControl,
-    Result
+    Result,
+    FPUFlags
 );
     //32 bits: 1 bit sign, 8 bit expo, 23 bit mantisa
     //16 bits. 1 bit sign, 5 bit expo, 10 bit mantisa
     input [31:0] a, b;
     input [1:0] FPUControl;  //00 suma 16 bits, 01 suma 32 bits, 10 producto 16 bits, 11 producto 32 bits
     output reg [31:0] Result;
+    output wire [3:0] FPUFlags;
+
+    wire neg, zero, carry, overflow;
 
     reg signA;
     reg signB;
@@ -27,7 +31,7 @@ module fpu(
     reg [31:0] aux;
     reg [47:0] aux2;
     reg [1:0] control;
-
+    
     always @(*) begin
         control = FPUControl;
         //Separo los componentes
@@ -172,5 +176,12 @@ module fpu(
         end
         Result = FPUControl[0] ? {signR, expoR[7:0], mantR[22:0]} : {signR, expoR[4:0], mantR[9:0]};
     end
+
+    assign carry = 1'b0;
+    assign overflow = 1'b0;
+    assign neg = FPUControl[0] ? Result[31] : Result[15];
+    assign zero = Result == 32'b0;
     
+    assign FPUFlags = {neg, zero, carry, overflow};
+
 endmodule
