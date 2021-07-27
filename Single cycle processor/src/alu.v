@@ -2,15 +2,19 @@ module alu(
     a,
     b,
     ALUControl,
-    Result,
+    Result1,
+    Result2,
     ALUFlags
 );
 
   input [31:0] a, b;
-  input [1:0] ALUControl;
-  output reg [31:0] Result;
+  input [2:0] ALUControl;
+  output reg [31:0] Result1;
+  output reg [31:0] Result2;
   output wire [3:0] ALUFlags;
   
+  wire signed [31:0] signed_a = a;
+  wire signed [31:0] signed_b = b;
   wire [32:0] sum;
   wire neg, zero, carry, overflow;
   
@@ -18,10 +22,13 @@ module alu(
 
   always @(*)
     begin
-      casex (ALUControl[1:0]) 
-        2'b0?: Result=sum;
-        2'b10: Result=a&b;
-				2'b11: Result=a|b;
+      casex (ALUControl[2:0]) 
+        3'b00?: Result1=sum;
+        3'b010: Result1=a&b;
+				3'b011: Result1=a|b;
+        3'b100: Result1 = a*b;
+        3'b101: {Result1, Result2} = a*b;
+        3'b110: {Result1, Result2} = signed_a*signed_b;
     	endcase    
     end
   

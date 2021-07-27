@@ -4,7 +4,9 @@
 module controller (
 	clk,
 	reset,
+	MulOp,
 	Instr,
+	MulOp,
 	ALUFlags,
 	FPUFlags,
 	RegSrc,
@@ -20,6 +22,7 @@ module controller (
 );
 	input wire clk;
 	input wire reset;
+	input wire [7:4] MulOp;
 	input wire [31:12] Instr;
 	input wire [3:0] ALUFlags;
 	input wire [3:0] FPUFlags;
@@ -42,6 +45,7 @@ module controller (
 		.Op(Instr[27:26]),
 		.Funct(Instr[25:20]),
 		.Rd(Instr[15:12]),
+		.MulOp(MulOp),
 		.FlagW(FlagW),
 		.PCS(PCS),
 		.RegW(RegW),
