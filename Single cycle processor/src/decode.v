@@ -58,12 +58,24 @@ module decode (
 		if (ALUOp) begin
 			if (MulOp == 4'b1001) begin
 				case (Funct[3:1])
-					3'b000: ALUControl = 3'b100;
-					3'b100: ALUControl = 3'b101;
-					3'b110: ALUControl = 3'b110;
-					default: ALUControl = 3'bxxx;
+					3'b000: begin
+						ALUControl = 3'b100;
+						MulWrite = 1'b0;
+					end
+					3'b100: begin
+						ALUControl = 3'b101;
+						MulWrite = 1'b1;
+					end
+					3'b110: begin
+						ALUControl = 3'b110;
+						MulWrite = 1'b1;
+					end					
+					default: begin
+						ALUControl = 3'bxxx;
+						MulWrite = 1'b0;
+					end
 				endcase
-				MulWrite = 1'b1;
+				
 			end
 			else begin
 				case (Funct[4:1])
