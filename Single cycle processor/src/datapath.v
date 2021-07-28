@@ -98,7 +98,7 @@ module datapath (
 		.ra1(RA1),
 		.ra2(RA2),
 		.wa3(Instr[15:12]),
-		.wa4(Instr[19:16]),
+		.wa4(Instr[11:8]),
 		.wd3(Result),
 		.wd4(ALUResult2),
 		.r15(PCPlus8),
