@@ -4,8 +4,6 @@ module testbench;
 	wire [31:0] WriteData;
 	wire [31:0] DataAdr;
 	wire MemWrite;
-	reg [31:0] checks;
-	reg [31:0] errors;
 	top dut(
 		.clk(clk),
 		.reset(reset),
@@ -14,8 +12,6 @@ module testbench;
 		.MemWrite(MemWrite)
 	);
 	initial begin
-		checks <= 0;
-		errors <= 0;
 		reset <= 1;
 		#(22)
 			;
