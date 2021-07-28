@@ -6,11 +6,12 @@
 // it is composed of instances of its sub-modules. For example,
 // the instruction register is instantiated as a 32-bit flopenr.
 // The other submodules are likewise instantiated. 
-`include "mux2.v"
+
 `include "mux3.v"
 `include "regfile.v"
 `include "extend.v"
 `include "alu.v"
+`include "fpu.v"
 
 module datapath (
 	clk,
@@ -29,7 +30,11 @@ module datapath (
 	ALUSrcB,
 	ResultSrc,
 	ImmSrc,
-	ALUControl
+	ALUControl,
+	ResSrc,
+	FPUControl,
+	FPUFlags,
+	MulWrite
 );
 	input wire clk;
 	input wire reset;
@@ -47,7 +52,7 @@ module datapath (
 	input wire [1:0] ALUSrcB;
 	input wire [1:0] ResultSrc;
 	input wire [1:0] ImmSrc;
-	input wire [1:0] ALUControl;
+	input wire [2:0] ALUControl;
 	wire [31:0] PCNext;
 	wire [31:0] PC;
 	wire [31:0] ExtImm;
@@ -58,11 +63,19 @@ module datapath (
 	wire [31:0] RD1;
 	wire [31:0] RD2;
 	wire [31:0] A;
-	wire [31:0] ALUResult;
+	wire [31:0] ALUResult1;
+	wire [31:0] ALUResult2;
 	wire [31:0] ALUOut;
 	wire [3:0] RA1;
 	wire [3:0] RA2;
-
+	
+	input wire ResSrc;
+	input wire [1:0] FPUControl;
+	output wire [3:0] FPUFlags;
+	wire [31:0] FPUResult;
+	wire [31:0] OpResult;
+	input wire MulWrite;
+	
 	// Your datapath hardware goes below. Instantiate each of the 
 	// submodules that you need. Remember that you can reuse hardware
 	// from previous labs. Be sure to give your instantiated modules 
@@ -111,10 +124,13 @@ module datapath (
 	regfile rf(
 		.clk(clk),
 		.we3(RegWrite),
+		.we4(MulWrite),
 		.ra1(RA1),
 		.ra2(RA2),
 		.wa3(Instr[15:12]),
+		.wa4(Instr[11:8]),
 		.wd3(Result),
+		.wd4(ALUResult2),
 		.r15(Result),
 		.rd1(RD1),
 		.rd2(RD2)
@@ -154,19 +170,33 @@ module datapath (
 		.a(SrcA),
 		.b(SrcB),
 		.ALUControl(ALUControl),
-		.Result(ALUResult),
+		.Result1(ALUResult1),
+		.Result2(ALUResult2),
 		.ALUFlags(ALUFlags)
+	);
+	fpu fpu(
+		.a(SrcA),
+		.b(SrcB),
+		.FPUControl(FPUControl),
+		.Result(FPUResult),
+		.FPUFlags(FPUFlags)
+	);
+	mux2 #(32) resSrcmux(
+		.d0(ALUResult1),
+		.d1(FPUResult),
+		.s(ResSrc),
+		.y(OpResult)
 	);
 	flopr #(32) aluoutreg(
 		.clk(clk),
 		.reset(reset),
-		.d(ALUResult),
+		.d(OpResult),
 		.q(ALUOut)
 	);
 	mux3 #(32) aluoutmux(
 		.d0(ALUOut),
 		.d1(Data),
-		.d2(ALUResult),
+		.d2(OpResult),
 		.s(ResultSrc),
 		.y(Result)
 	);

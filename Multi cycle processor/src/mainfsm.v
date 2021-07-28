@@ -69,6 +69,11 @@ module mainfsm (
 							nextstate = EXECUTER;
 					2'b01: nextstate = MEMADR;
 					2'b10: nextstate = BRANCH;
+					2'b11: 
+						if (Funct[5])
+							nextstate = EXECUTEI;
+						else
+							nextstate = EXECUTER;
 					default: nextstate = UNKNOWN;
 				endcase
 			MEMADR:

@@ -2,6 +2,7 @@
 `include "datapath.v"
 `include "flopenr.v"
 `include "flopr.v"
+`include "mux2.v"
 module arm (
 	clk,
 	reset,
@@ -26,8 +27,14 @@ module arm (
 	wire [1:0] ALUSrcA;
 	wire [1:0] ALUSrcB;
 	wire [1:0] ImmSrc;
-	wire [1:0] ALUControl;
+	wire [2:0] ALUControl;
 	wire [1:0] ResultSrc;
+
+	wire [3:0] FPUFlags;
+	wire [1:0] FPUControl;
+	wire ResSrc;
+	wire MulWrite;
+
 	controller c(
 		.clk(clk),
 		.reset(reset),
@@ -43,7 +50,12 @@ module arm (
 		.ALUSrcB(ALUSrcB),
 		.ResultSrc(ResultSrc),
 		.ImmSrc(ImmSrc),
-		.ALUControl(ALUControl)
+		.ALUControl(ALUControl),
+		.FPUFlags(FPUFlags),
+		.FPUControl(FPUControl),
+		.ResSrc(ResSrc),
+		.MulWrite(MulWrite),
+		.MulOp(Instr[7:4])
 	);
 	datapath dp(
 		.clk(clk),
@@ -62,6 +74,10 @@ module arm (
 		.ALUSrcB(ALUSrcB),
 		.ResultSrc(ResultSrc),
 		.ImmSrc(ImmSrc),
-		.ALUControl(ALUControl)
+		.ALUControl(ALUControl),
+		.ResSrc(ResSrc),
+		.FPUControl(FPUControl),
+		.FPUFlags(FPUFlags),
+		.MulWrite(MulWrite)
 	);
 endmodule
