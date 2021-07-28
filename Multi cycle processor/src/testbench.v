@@ -30,6 +30,17 @@ module testbench;
 			;
 	end
 	always @(negedge clk)
+		/*if (MemWrite)
+			if ((Adr === 100) & (WriteData === 7)) begin
+				$display("Simulation succeeded");
+				#20;
+				$finish;
+			end
+			else if (Adr !== 96) begin
+				$display("Simulation failed");
+				#20;
+				$finish;
+			end*/
 		if (MemWrite) begin
 			case (Adr)
 				200: begin
