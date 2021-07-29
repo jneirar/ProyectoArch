@@ -16,6 +16,8 @@ module testbench;
 		#(22)
 			;
 		reset <= 0;
+		//#300;
+		//$finish;
 	end
 	always begin
 		clk <= 1;
@@ -120,17 +122,51 @@ module testbench;
 		if (MemWrite) begin
 			case (DataAdr)
 				100: begin
-					if (WriteData != 32'h06890000) begin
-						$display("Simulation failed LSB", WriteData);
+					if (WriteData !== 32'h06890000) begin
+						$display("Simulation failed Factorial LSB");
 						#20;
 						$finish;				  
 					end
+					else if begin
+						$display("Simulation succeded Factorial LSB");
+						#20;
+						$finish;
+					end
 				end
 				104: begin
-					if (WriteData != 32'h01B02B93) begin
-						$display("Simulation failed MSB", WriteData);
+					if (WriteData !== 32'h1B02B93) begin
+						$display("Simulation failed Factorial MSB");
+						#20;
+						$finish;				  
+					end
+					else if begin
+						$display("Simulation succeded Factorial MSB");
+						#20;
+						$finish;
+					end
+				end
+				108: begin
+					if (WriteData !== 32'hE3730400) begin
+						$display("Simulation failed Negative Factorial LSB");
+						#20;
+						$finish;				  
+					end
+					else begin
+						$display("Simulation succeded Negative Factorial LSB");
+						#20;
+						$finish;
+					end
+				end
+				112: begin
+					if (WriteData !== 32'hFFFFFFFF) begin
+						$display("Simulation failed Negative Factorial MSB");
 						#20;
 						$finish;  
+					end
+					else begin
+						$display("Simulation succeded Negative Factorial MSB ", WriteData);
+						#20;
+						$finish;
 					end
 				end
 			endcase
