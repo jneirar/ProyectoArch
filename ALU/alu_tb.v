@@ -42,7 +42,7 @@ module alu_tb();
         begin
             if (~reset)
                 begin 
-                    if ((Result1 !== Result_1_expected || Result2 !== Result_2_expected))  // ===, == 
+                    if ((Result1 !== Result_1_expected || Result2 !== Result_2_expected || ALUFlags !== ALUFlags_expected)) 
                         begin
                           $display("testvector: %h",testvector[vectornum]);
                           $display("Vectornum: %d",vectornum);
@@ -51,6 +51,7 @@ module alu_tb();
                           $display("Error input ALUControl: %h",{ALUControl});
                           $display("output Result_1:%h, Result_1_expected:%h",Result1,Result_1_expected);
                           $display("output Result_2:%h, Result_2_expected:%h",Result2,Result_2_expected);
+                          $display("output ALUFlags:%h, ALUFlags_expected:%h",ALUFlags,ALUFlags_expected);
                           errors=errors+1; 
                         end
                     vectornum=vectornum+1;
