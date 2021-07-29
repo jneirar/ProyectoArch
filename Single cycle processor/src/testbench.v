@@ -40,6 +40,7 @@ module testbench;
 				#20;
 				$finish;
 			end*/
+		/*	
 		if (MemWrite) begin
 			case (DataAdr)
 				200: begin
@@ -114,6 +115,25 @@ module testbench;
 				  	$display("Simulation failed default");
 					#20;
 					$finish;
+				end
+			endcase
+		end
+		*/
+		if (MemWrite) begin
+			case (DataAdr)
+				100: begin
+					if (WriteData != 32'h06890000) begin
+						$display("Simulation failed LSB", WriteData);
+						#20;
+						$finish;				  
+					end
+				end
+				104: begin
+					if (WriteData != 32'h01B02B93) begin
+						$display("Simulation failed MSB", WriteData);
+						#20;
+						$finish;  
+					end
 				end
 			endcase
 		end
