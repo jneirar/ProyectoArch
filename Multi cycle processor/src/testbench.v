@@ -98,11 +98,6 @@ module testbench;
 						#20;
 						$finish;
 					end
-					else begin
-						$display("Simulation succeeded");
-						#20;
-						$finish;
-					end
 				end
 				232: begin
 					if (WriteData === 32'h8) begin
