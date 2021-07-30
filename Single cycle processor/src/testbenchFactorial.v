@@ -16,8 +16,6 @@ module testbench;
 		#(22)
 			;
 		reset <= 0;
-		//#300;
-		//$finish;
 	end
 	always begin
 		clk <= 1;

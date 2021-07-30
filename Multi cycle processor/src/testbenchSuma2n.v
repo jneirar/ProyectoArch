@@ -32,12 +32,12 @@ module testbench;
 	always @(negedge clk)
 		if (MemWrite) begin
 			if (Adr === 200) begin
-				//if (WriteData === 32'h3f800000) begin	//i=1
-				//if (WriteData === 32'h3fc00000) begin	//i=2
-				if (WriteData === 32'h3fe00000) begin	//i=3
-				//if (WriteData === 32'h3ff00000) begin	//i=4
-				//if (WriteData === 32'h3ff80000) begin	//i=5
-				//if (WriteData === 32'h3ffc0000) begin	//i=6
+				//if (WriteData === 32'h3f800000) begin	//i=1 //Línea 15 de código E2803001 //Cambiar mem
+				//if (WriteData === 32'h3fc00000) begin	//i=2 //Línea 15 de código E2803002 //Cambiar mem
+				if (WriteData === 32'h3fe00000) begin	//i=3 //Línea 15 de código E2803003 //Cambiar mem
+				//if (WriteData === 32'h3ff00000) begin	//i=4 //Línea 15 de código E2803004 //Cambiar mem
+				//if (WriteData === 32'h3ff80000) begin	//i=5 //Línea 15 de código E2803005 //Cambiar mem
+				//if (WriteData === 32'h3ffc0000) begin	//i=6 //Línea 15 de código E2803006 //Cambiar mem
 					$display("Simulation succeeded");
 					#20;
 					$finish;	
